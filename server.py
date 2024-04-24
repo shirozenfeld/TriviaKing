@@ -130,7 +130,7 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                 start_time = time.time()
                 client_socket, addr = server_socket.accept()
                 end_time = time.time()
-                if (end_time-start_time) > 10:
+                if (end_time-start_time) > 10 and len(client_sockets) >= 1:
                     stop_event.set()  # Stop sending UDP offers
                     offer_thread.join()
                     server_socket.close()

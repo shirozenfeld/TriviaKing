@@ -4,6 +4,7 @@ import socket
 import struct
 import sys
 import threading
+from faker import Faker
 
 Bold = "\033[1m"
 Red = "\033[31;1m"
@@ -66,6 +67,10 @@ def send_tcp_messages(client_socket,  stop_event):
 
 
 def main():
+    # Send player name to the server
+    fake = Faker()
+    player_name = fake.name()
+    print(player_name)
     server_udp_port = 13117
     stop_event = threading.Event()
     while True:
@@ -84,8 +89,6 @@ def main():
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client_socket.connect((server_ip_address, server_tcp_port))
             print("Connected to the server.")
-            # Send player name to the server
-            player_name = input("Enter your name: ")
             client_socket.sendall(player_name.encode() + b'\n')
             # Start threads for sending and receiving messages
             receive_thread = threading.Thread(target=receive_tcp_messages, args=(client_socket, stop_event))
