@@ -7,6 +7,13 @@ import random
 from queue import Queue
 
 
+Bold = "\033[1m"
+Red = "\033[31;1m"
+Green = "\033[32;1m"
+Yellow = "\033[33;1m"
+Blue = "\033[34;1m"
+end = "\033[0;1m"
+
 def pick_a_question():
     # List of trivia questions about sloths
     trivia_questions = [
@@ -74,11 +81,12 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
     server_name = "Misty"
     #set UDP socket properties
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    #set socket options to allow broadcast
-    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+    # set socket options to allow broadcast
+    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     #send broadcast message
     try:
-        print(f"Server started, listening on IP address {server_ip_address}")
+        print(f"{Yellow}Server started, listening on IP address {server_ip_address}")
         while not stop_event.is_set():
             # Construct message
             message = f"Received offer from server “{server_name}” at address {server_ip_address}, attempting to connect..."
@@ -106,12 +114,12 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
     try:
         # Create server TCP socket
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((server_ip_address, server_tcp_listening_port))
         server_socket.listen(3)
         # Create server UDP socket & Start broadcasting offer messages in a separate thread
-        offer_thread = threading.Thread(target=send_udp_broadcast_message(server_ip_address, server_udp_broadcast_port, server_tcp_listening_port, stop_event)).start()
-
+        offer_thread = threading.Thread(target=send_udp_broadcast_message, args=(server_ip_address, server_udp_broadcast_port, server_tcp_listening_port, stop_event))
+        offer_thread.start()
         # Dictionary to store client sockets
         client_sockets = {}
 
@@ -184,7 +192,8 @@ def trivia_game(client_sockets):
         clients_threads = []
         # send messages and wait for answers to the questions
         for player_name, socket in client_sockets:
-            thread = threading.Thread(target=handle_client, args=(player_name, socket, question, True, answers)).start()
+            thread = threading.Thread(target=handle_client, args=(player_name, socket, question, True, answers))
+            thread.start()
             clients_threads.append(thread)
         for thread in clients_threads:
             thread.join()
@@ -201,7 +210,8 @@ def trivia_game(client_sockets):
                 message = f"{winner_name} is correct! {winner_name} wins!"
                 # Send message 1
                 for player_name, socket in client_sockets:
-                    thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None)).start()
+                    thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None))
+                    thread.start()
                     clients_threads.append(thread)
                 for thread in clients_threads:
                     thread.join()
@@ -212,7 +222,8 @@ def trivia_game(client_sockets):
                 message += read_stats()
                 # Send message 2
                 for player_name, socket in client_sockets:
-                    thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None)).start()
+                    thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None))
+                    thread.start()
                     clients_threads.append(thread)
                 for thread in clients_threads:
                     thread.join()
