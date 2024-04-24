@@ -6,6 +6,7 @@ import threading
 import random
 from queue import Queue
 
+
 def pick_a_question():
     # List of trivia questions about sloths
     trivia_questions = [
@@ -91,6 +92,7 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
             udp_socket.sendto(packet, (broadcast_ip, server_broadcast_port))
             time.sleep(1)
     except Exception as e:
+        print(e)
         print("Stopping UDP broadcast")
         udp_socket.close()
 
@@ -102,8 +104,6 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,ser
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((server_ip_address, server_tcp_listening_port))
         server_socket.listen(3)
-        print(f"Server started, listening on IP address {server_ip_address}")
-
         # Create server UDP socket & Start broadcasting offer messages in a separate thread
         offer_thread = threading.Thread(target=send_udp_broadcast_message(server_ip_address, server_udp_broadcast_port, server_tcp_listening_port, stop_event)).start()
 
@@ -125,11 +125,11 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,ser
                 player_name = client_socket.recv(1024).decode().strip() # Receive player name from the client
                 client_sockets[player_name] = client_socket # Add the client socket to the list
                 # Stop accepting clients if you have already reached 3
-                if len(client_socket) == 3:
-                    stop_event.set()
-                    offer_thread.join()
-                    server_socket.close()
-                    return client_sockets
+                # if len(client_socket) == 3:
+                #     stop_event.set()
+                #     offer_thread.join()
+                #     server_socket.close()
+                #     return client_sockets
                 # Cancel the previous timer if it's still running, and restart it
 
         except Exception as e:
