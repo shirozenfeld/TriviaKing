@@ -5,6 +5,7 @@ import time
 import threading
 import random
 from queue import Queue
+from faker import Faker
 
 
 Bold = "\033[1m"
@@ -43,6 +44,7 @@ def pick_a_question():
     # Print the trivia questions
     return trivia_questions[0]
 
+
 def get_local_ip_address():
     try:
         # Create a socket object
@@ -55,8 +57,9 @@ def get_local_ip_address():
         s.close()
         return ip_address
     except Exception as e:
-        print("Error:", e)
+        print("get_local_ip_address:", e)
         return None
+
 
 # getting available port number from operating system
 def get_free_port():
@@ -68,11 +71,11 @@ def get_free_port():
         # Get the assigned port number
         port = s.getsockname()[1]
     except Exception as e:
-        print("Error:", e)
+        print("get_free_port:", e)
         port = None
-    finally:
-        # Close the socket
-        s.close()
+    # finally:
+    #     # Close the socket
+    #     s.close()
     return port
 
 
@@ -89,7 +92,7 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
         print(f"{Yellow}Server started, listening on IP address {server_ip_address}")
         while not stop_event.is_set():
             # Construct message
-            message = f"Received offer from server “{server_name}” at address {server_ip_address}, attempting to connect..."
+            message = f"Received offer from server \"{server_name}\" at address {server_ip_address}, attempting to connect..."
             # Packet format
             magic_cookie = b'\xab\xcd\xdc\xba'
             message_type = b'\x02'
@@ -104,19 +107,20 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
         print(e)
         print("Stopping UDP broadcast")
         udp_socket.close()
-    finally:
-        # Close the UDP socket to release the port
-        udp_socket.close()
+    # finally:
+    #     # Close the UDP socket to release the port
+    #     udp_socket.close()
 
 
 def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, server_udp_broadcast_port):
     stop_event = threading.Event()  # Event to stop the UDP broadcast thread and TCP listening socket
+    print(stop_event)
     try:
         # Create server TCP socket
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((server_ip_address, server_tcp_listening_port))
-        server_socket.listen(3)
+        server_socket.listen(5)
         # Create server UDP socket & Start broadcasting offer messages in a separate thread
         offer_thread = threading.Thread(target=send_udp_broadcast_message, args=(server_ip_address, server_udp_broadcast_port, server_tcp_listening_port, stop_event))
         offer_thread.start()
@@ -135,17 +139,17 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                     offer_thread.join()
                     server_socket.close()
                     return client_sockets
-                player_name = client_socket.recv(1024).decode().strip()  # Receive player name from the client
-                client_sockets[player_name] = client_socket  # Add the client socket to the list
-                # Stop accepting clients if you have already reached 3
-                # if len(client_socket) == 3:
-                #     stop_event.set()
-                #     offer_thread.join()
-                #     server_socket.close()
-                #     return client_sockets
-                # Cancel the previous timer if it's still running, and restart it
+                player_name = client_socket.recv(1024).decode().strip()  # Receive player name from the client`
+                while True:
+                    if player_name in client_sockets.keys():
+                        fake = Faker()
+                        player_name = fake.name()
+                    else:
+                        client_sockets[player_name] = client_socket  # Add the client socket to the list]
+                        break
 
         except Exception as e:
+            print(f"run_udp_and_tcp_connections inside excpetion: {e}")
             stop_event.set()
             for client_socket in client_sockets.values():
                 client_socket.close()
@@ -153,6 +157,11 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
 
     except Exception as e:
         print(f"Error trying to set a TCP server: {e}")
+        if len(client_sockets.keys()) > 0:
+            for client_socket in client_sockets.values():
+                client_socket.close()
+        server_socket.close()
+    finally:
         if len(client_sockets.keys()) > 0:
             for client_socket in client_sockets.values():
                 client_socket.close()
@@ -264,19 +273,22 @@ def read_stats():
     except FileNotFoundError:
         print("The file 'stats.txt' does not exist.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"read_stats: {e}")
 
 
 def main():
-
     while True:
         server_ip_address = get_local_ip_address()
         server_udp_broadcast_port = 13117
         server_tcp_listening_port = get_free_port()
-        client_sockets = run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, server_udp_broadcast_port)
+        client_sockets = run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,
+                                                     server_udp_broadcast_port)
         if len(client_sockets) > 1:
             trivia_game(client_sockets)
             print("Game over, sending out offer requests...")
+
+        else:
+            print("No other players have joined, please try again.")
 
 
 if __name__ == "__main__":

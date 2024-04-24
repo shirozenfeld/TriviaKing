@@ -13,7 +13,6 @@ Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
 
-
 def receive_udp_offer(udp_socket):
     while True:
         try:
@@ -67,6 +66,8 @@ def send_tcp_messages(client_socket,  stop_event):
 
 
 def main():
+    udp_socket = None
+    client_socket = None
     # Send player name to the server
     fake = Faker()
     player_name = fake.name()
@@ -84,23 +85,28 @@ def main():
             # Listen for offer messages
             magic_cookie, message_type, server_name, server_ip_address, server_tcp_port, message = receive_udp_offer(udp_socket)
             print(message)
-
             # Connect to the server via TCP
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client_socket.connect((server_ip_address, server_tcp_port))
             print("Connected to the server.")
             client_socket.sendall(player_name.encode() + b'\n')
-            # Start threads for sending and receiving messages
+            # Start threads for sending and receiving m`essages
             receive_thread = threading.Thread(target=receive_tcp_messages, args=(client_socket, stop_event))
             send_thread = threading.Thread(target=send_tcp_messages, args=(client_socket, stop_event))
             send_thread.start()
             receive_thread.start()
             send_thread.join()
             receive_thread.join()
+            udp_socket.close()
             client_socket.close()
         except Exception as e:
             print("main:", e)
             sys.exit()
+        finally:
+            if udp_socket:
+                udp_socket.close()
+            if client_socket:
+                client_socket.close()
 
 
 if __name__ == "__main__":
