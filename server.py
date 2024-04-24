@@ -68,6 +68,7 @@ def get_free_port():
         s.close()
     return port
 
+
 def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_tcp_port_number, stop_event):
     broadcast_ip = "255.255.255.255"
     server_name = "Misty"
@@ -95,13 +96,17 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
         print(e)
         print("Stopping UDP broadcast")
         udp_socket.close()
+    finally:
+        # Close the UDP socket to release the port
+        udp_socket.close()
 
-def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,server_udp_broadcast_port):
+
+def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, server_udp_broadcast_port):
     stop_event = threading.Event()  # Event to stop the UDP broadcast thread and TCP listening socket
     try:
         # Create server TCP socket
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         server_socket.bind((server_ip_address, server_tcp_listening_port))
         server_socket.listen(3)
         # Create server UDP socket & Start broadcasting offer messages in a separate thread
@@ -114,16 +119,16 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,ser
         try:
             # Accept client connections
             while not stop_event.is_set():
-                start_time=time.time()
+                start_time = time.time()
                 client_socket, addr = server_socket.accept()
-                end_time=time.time()
-                if (end_time-start_time)>10:
-                    stop_event.set() # Stop sending UDP offers
+                end_time = time.time()
+                if (end_time-start_time) > 10:
+                    stop_event.set()  # Stop sending UDP offers
                     offer_thread.join()
                     server_socket.close()
                     return client_sockets
-                player_name = client_socket.recv(1024).decode().strip() # Receive player name from the client
-                client_sockets[player_name] = client_socket # Add the client socket to the list
+                player_name = client_socket.recv(1024).decode().strip()  # Receive player name from the client
+                client_sockets[player_name] = client_socket  # Add the client socket to the list
                 # Stop accepting clients if you have already reached 3
                 # if len(client_socket) == 3:
                 #     stop_event.set()
@@ -140,9 +145,11 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,ser
 
     except Exception as e:
         print(f"Error trying to set a TCP server: {e}")
-        for client_socket in client_sockets.values():
-            client_socket.close()
+        if len(client_sockets.keys()) > 0:
+            for client_socket in client_sockets.values():
+                client_socket.close()
         server_socket.close()
+
 
 #Function to handle communication with each client
 def handle_client(player_name, client_socket, message, should_wait_for_answer, data_structure):
@@ -161,22 +168,23 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, d
                 data_structure.put(player_name, data.decode())
                 break
 
+
 def trivia_game(client_sockets):
-    answers=Queue()
-    question,is_true=trivia_game()
+    answers = Queue()
+    question, is_true = pick_a_question()
     # create welcome message & question
-    message="Welcome to the Mystic server, where we are answering trivia questions about Sloths."
-    i=1
-    round=1
+    message = "Welcome to the Mystic server, where we are answering trivia questions about Sloths."
+    i = 1
+    round = 1
     for player_name in client_sockets.keys():
-        message+=f"\n Player {i}: {player_name}"
-        i+=1
-    message+="\nTrue or false: "+question
+        message += f"\n Player {i}: {player_name}"
+        i += 1
+    message += "\n==\nTrue or false: "+question
     while True:
         clients_threads = []
         # send messages and wait for answers to the questions
-        for player_name,socket in client_sockets:
-            thread=threading.Thread(target=handle_client, args=(player_name,socket,question,True,answers)).start()
+        for player_name, socket in client_sockets:
+            thread = threading.Thread(target=handle_client, args=(player_name, socket, question, True, answers)).start()
             clients_threads.append(thread)
         for thread in clients_threads:
             thread.join()
@@ -188,12 +196,12 @@ def trivia_game(client_sockets):
             player_name, answer=answers.get()
             if ((is_true) and (answer=='Y' or answer=='T' or answer=="1")) or ((not is_true) and (answer=='N' or answer=='F' or answer=="0")):
                 # There is a winner for this round!
-                winner_flag=True
-                winner_name=player_name
-                message=f"{winner_name} is correct! {winner_name} wins!"
+                winner_flag = True
+                winner_name = player_name
+                message = f"{winner_name} is correct! {winner_name} wins!"
                 # Send message 1
                 for player_name, socket in client_sockets:
-                    thread = threading.Thread(target=handle_client, args=(player_name, socket, message,False,None)).start()
+                    thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None)).start()
                     clients_threads.append(thread)
                 for thread in clients_threads:
                     thread.join()
@@ -204,55 +212,61 @@ def trivia_game(client_sockets):
                 message += read_stats()
                 # Send message 2
                 for player_name, socket in client_sockets:
-                    thread = threading.Thread(target=handle_client(),
-                                              args=(player_name, socket, message, False, None)).start()
+                    thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None)).start()
                     clients_threads.append(thread)
                 for thread in clients_threads:
                     thread.join()
                 break
         # If nobody answers correctly, another round begins
         if not winner_flag:
-            round+=1
-            question, is_true = trivia_game()
-            message=f"Round {round}, played by "
+            round += 1
+            question, is_true = pick_a_question()
+            message = f"Round {round}, played by "
             for player_name in client_sockets.keys():
-                message+=f"{player_name}, "
-            message+=":\nTrue or false: "+question
+                message += f"{player_name}, "
+            message += ":\nTrue or false: "+question
     #there is a winner, end game
     for client_socket in client_sockets.values():
         client_socket.close()
     return player_name
 
+
 def add_to_stats(player_name):
     with open("stats.txt", "w") as file:
         file.writelines(player_name)
+
+
 def read_stats():
     try:
-        with open("stats.txt","r") as file:
-            lines= {}
+        with open("stats.txt", "r") as file:
+            lines = {}
             for line in file:
-                line=line.rstrip()
-                lines[line]= lines[line] = lines.get(line, 0) + 1
-            sorted_winners=sorted(lines.items(),key=lambda player:player[1],reverse=True)
-            message="Winners List Statistical Table:"
-            i=1
-            for player,wins in sorted_winners:
-                message+=f"\nnumber #{i}: {player}"
-                i+=1
+                line = line.rstrip()
+                lines[line] = lines[line] = lines.get(line, 0) + 1
+            sorted_winners = sorted(lines.items(), key=lambda player:player[1], reverse=True)
+            message = "Winners List Statistical Table:"
+            i = 1
+            for player, wins in sorted_winners:
+                message += f"\nnumber #{i}: {player}"
+                i += 1
             return message
     except FileNotFoundError:
         print("The file 'stats.txt' does not exist.")
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
 def main():
+
     while True:
         server_ip_address = get_local_ip_address()
         server_udp_broadcast_port = 13117
         server_tcp_listening_port = get_free_port()
-        client_sockets=run_udp_and_tcp_connections(server_ip_address,server_tcp_listening_port,server_udp_broadcast_port)
-        if len(client_sockets)>1 and len(client_sockets)<4:
+        client_sockets = run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, server_udp_broadcast_port)
+        if len(client_sockets) > 1:
             trivia_game(client_sockets)
+            print("Game over, sending out offer requests...")
+
 
 if __name__ == "__main__":
     main()
