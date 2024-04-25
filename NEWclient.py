@@ -14,6 +14,20 @@ Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
 
+class SynchronizedDataStructure:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._data = []
+
+    def add_item(self, item):
+        with self._lock:
+            self._data.append(item)
+
+    def get_items(self):
+        with self._lock:
+            return list(self._data)
+
+
 def receive_udp_offer(udp_socket):
     while True:
         try:
@@ -74,7 +88,8 @@ def main():
     player_name = fake.name()
     print(player_name)
     server_udp_port = 13117
-    stop_event = threading.Event()
+    stop_event_client = threading.Event()
+    synchronized_list = SynchronizedDataStructure()
     while True:
         try:
             # Create a UDP socket
