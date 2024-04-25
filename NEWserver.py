@@ -107,7 +107,9 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
         print(e)
         print("Stopping UDP broadcast")
         udp_socket.close()
-
+    # finally:
+    #     # Close the UDP socket to release the port
+    #     udp_socket.close()
 
 
 def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, server_udp_broadcast_port):
@@ -182,6 +184,11 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
             for client_socket in client_sockets.values():
                 client_socket.close()
         server_socket.close()
+    # finally:
+    #     if len(client_sockets.keys()) > 1:
+    #         for client_socket in client_sockets.values():
+    #             client_socket.close()
+    #     server_socket.close()
 
 
 # Function to handle communication with each client
@@ -224,8 +231,8 @@ def trivia_game(client_sockets):
             thread.start()
             clients_threads.append(thread)
         for thread in clients_threads:
-            thread.join()
-            # input validation is done in handle_client function
+            thread.join(timeout=10)
+        # input validation is done in handle_client function
         clients_threads.clear()
         winner_flag = False
         while not answers.empty():

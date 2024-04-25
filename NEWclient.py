@@ -1,5 +1,3 @@
-# todo: לשנות את הפורט כך שיהיה שיתופי
-
 import socket
 import struct
 import sys
@@ -74,6 +72,7 @@ def main():
     # Send player name to the server
     fake = Faker()
     player_name = fake.name()
+    print(player_name)
     server_udp_port = 13117
     stop_event = threading.Event()
     while True:
@@ -118,7 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
