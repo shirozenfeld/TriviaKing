@@ -18,8 +18,6 @@ end = "\033[0;1m"
 
 def pick_a_question():
     # List of trivia questions about sloths
-
-#asdf
     trivia_questions = [
         {"question": "Sloths are mammals.", "is_true": True},
         {"question": "Sloths spend most of their time sleeping.", "is_true": True},
@@ -109,9 +107,7 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
         print(e)
         print("Stopping UDP broadcast")
         udp_socket.close()
-    # finally:
-    #     # Close the UDP socket to release the port
-    #     udp_socket.close()
+
 
 
 def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, server_udp_broadcast_port):
@@ -186,11 +182,6 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
             for client_socket in client_sockets.values():
                 client_socket.close()
         server_socket.close()
-    # finally:
-    #     if len(client_sockets.keys()) > 1:
-    #         for client_socket in client_sockets.values():
-    #             client_socket.close()
-    #     server_socket.close()
 
 
 # Function to handle communication with each client
