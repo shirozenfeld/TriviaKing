@@ -238,14 +238,12 @@ def trivia_game(client_sockets):
         while not answers.empty():
             # fold out the player-answer tuples by FIFO order
             player_name, answer = answers.get()
-            print(player_name, answer)
             if (is_true == True and (answer == 'Y' or answer == 'T' or answer == "1")) or (
                     is_true == False and (answer == 'N' or answer == 'F' or answer == "0")):
                 # There is a winner for this round!
                 winner_flag = True
                 winner_name = player_name
-                print(player_name)
-                message = f"{Yellow}{winner_name} is correct! {winner_name} wins!"
+                message = f"{Yellow}{winner_name} is correct! The answer is {is_true}. {winner_name} wins!"
                 # Send message 1
                 for player_name, socket in client_sockets.items():
                     thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None))
@@ -279,10 +277,10 @@ def trivia_game(client_sockets):
         client_socket.close()
     return player_name
 
-
 def add_to_stats(player_name):
-    with open("stats.txt", "w") as file:
-        file.writelines(player_name)
+    with open("stats.txt", "a") as file:
+        file.write(player_name + '\n')  # Append player_name to the file followed by a newline character
+
 
 
 def read_stats():
