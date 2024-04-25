@@ -4,6 +4,7 @@ import sys
 import threading
 from faker import Faker
 import re
+from queue import Queue
 
 
 Bold = "\033[1m"
@@ -39,31 +40,30 @@ def receive_udp_offer(udp_socket):
             break
 
 
-def receive_tcp_messages(client_socket,  stop_event):
-    while not stop_event.is_set():
+def receive_tcp_messages(client_socket):
+    while True:
         try:
             data = client_socket.recv(1024).decode()
             if not data:
                 break
             print(data)
+            if "true or false" in data.lower():
+                send_tcp_messages(client_socket)
             # Check if the received data contains "game over"
             if "game over" in data.lower():
                 print("Server disconnected, listening for offer requests...")
-                stop_event.is_set()
                 break
         except Exception as e:
             print("receive_tcp_messages:", e)
             break
 
 
-def send_tcp_messages(client_socket,  stop_event):
-    while not stop_event.is_set():
-        try:
-            message = input()
-            client_socket.sendall(message.encode())
-        except Exception as e:
-            print("send_tcp_messages:", e)
-            break
+def send_tcp_messages(client_socket):
+    try:
+        message = input()
+        client_socket.sendall(message.encode())
+    except Exception as e:
+        print("send_tcp_messages:", e)
 
 
 def main():
@@ -97,23 +97,18 @@ def main():
             print("Connected to the server.")
             client_socket.sendall(player_name.encode() + b'\n')
             # Start threads for sending and receiving messages
-            receive_thread = threading.Thread(target=receive_tcp_messages, args=(client_socket, stop_event))
-            send_thread = threading.Thread(target=send_tcp_messages, args=(client_socket, stop_event))
-            send_thread.start()
+            receive_thread = threading.Thread(target=receive_tcp_messages(client_socket))
             receive_thread.start()
-            send_thread.join()
             receive_thread.join()
             udp_socket.close()
             client_socket.close()
         except Exception as e:
             print("main:", e)
             sys.exit()
-        finally:
-            if udp_socket:
-                udp_socket.close()
-            if client_socket:
-                client_socket.close()
 
 
 if __name__ == "__main__":
     main()
+
+
+#

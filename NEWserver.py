@@ -272,6 +272,7 @@ def trivia_game(client_sockets):
             for player_name in client_sockets.keys():
                 message += f"{player_name}, "
             message += ":\nTrue or false: " + question
+        break
     # there is a winner, end game
     for client_socket in client_sockets.values():
         client_socket.close()
