@@ -18,6 +18,8 @@ end = "\033[0;1m"
 
 def pick_a_question():
     # List of trivia questions about sloths
+
+#asdf
     trivia_questions = [
         {"question": "Sloths are mammals.", "is_true": True},
         {"question": "Sloths spend most of their time sleeping.", "is_true": True},
