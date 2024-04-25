@@ -5,6 +5,8 @@ import struct
 import sys
 import threading
 from faker import Faker
+import re
+
 
 Bold = "\033[1m"
 Red = "\033[31;1m"
@@ -13,17 +15,16 @@ Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
 
+
 def receive_udp_offer(udp_socket):
     while True:
         try:
             data, server_address = udp_socket.recvfrom(1024)
-            # print(data)
             magic_cookie = data[:4]
             message_type = data[4]
             if magic_cookie == b'\xab\xcd\xdc\xba' and message_type == 0x02:
                 server_name_end = data.find(b'\x00', 5)
                 server_name = data[5:server_name_end].decode('utf-8').strip()
-                server_ip_address = server_address[0]
                 # Extract server port bytes
                 server_tcp_port = data[37: 39]
                 # Unpack the bytes to get the server TCP port number
@@ -31,7 +32,10 @@ def receive_udp_offer(udp_socket):
                 # Extract message
                 server_message_start = data.find(b'Received')
                 message = data[server_message_start:].decode('utf-8')
-
+                # Define a regular expression pattern to find the IP address after 'address'
+                pattern = r'address (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+                # Find all matches of the pattern in the text
+                server_ip_address = re.search(pattern, message).group(1)
                 return magic_cookie, message_type, server_name, server_ip_address, server_tcp_port_number, message
         except Exception as e:
             print("receive_udp_offer:", e)
@@ -71,13 +75,13 @@ def main():
     # Send player name to the server
     fake = Faker()
     player_name = fake.name()
-    print(player_name)
     server_udp_port = 13117
     stop_event = threading.Event()
     while True:
         try:
             # Create a UDP socket
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             udp_socket.bind(("", server_udp_port))
 
             print(f"{Blue}Client started, listening for offer requests...")
@@ -85,12 +89,16 @@ def main():
             # Listen for offer messages
             magic_cookie, message_type, server_name, server_ip_address, server_tcp_port, message = receive_udp_offer(udp_socket)
             print(message)
+
             # Connect to the server via TCP
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client_socket.connect((server_ip_address, server_tcp_port))
+            try:
+                client_socket.connect((server_ip_address, server_tcp_port))
+            except Exception as e:
+                print(e)
             print("Connected to the server.")
             client_socket.sendall(player_name.encode() + b'\n')
-            # Start threads for sending and receiving m`essages
+            # Start threads for sending and receiving messages
             receive_thread = threading.Thread(target=receive_tcp_messages, args=(client_socket, stop_event))
             send_thread = threading.Thread(target=send_tcp_messages, args=(client_socket, stop_event))
             send_thread.start()
