@@ -15,7 +15,6 @@ Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
 
-
 def receive_udp_offer(udp_socket):
     while True:
         try:
