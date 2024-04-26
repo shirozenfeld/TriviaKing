@@ -1,3 +1,4 @@
+#CLIENT
 import socket
 import struct
 import sys
@@ -13,19 +14,6 @@ Green = "\033[32;1m"
 Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
-
-class SynchronizedDataStructure:
-    def __init__(self):
-        self._lock = threading.Lock()
-        self._data = []
-
-    def add_item(self, item):
-        with self._lock:
-            self._data.append(item)
-
-    def get_items(self):
-        with self._lock:
-            return list(self._data)
 
 
 def receive_udp_offer(udp_socket):
@@ -55,29 +43,36 @@ def receive_udp_offer(udp_socket):
 
 
 def receive_tcp_messages(client_socket):
-    while True:
-        try:
+    try:
+        while True:
             data = client_socket.recv(1024).decode()
             if not data:
                 break
             print(data)
-            if "true or false" in data.lower():
+            if "true or false" in data.lower() or "invalid input" in data.lower():
                 send_tcp_messages(client_socket)
             # Check if the received data contains "game over"
-            if "game over" in data.lower():
+            if "game over" in data.lower() or "abandoned" in data.lower():
                 print("Server disconnected, listening for offer requests...")
                 break
-        except Exception as e:
-            print("receive_tcp_messages:", e)
-            break
+
+    except ConnectionResetError as e:
+        print(f'{end}{Red}Connection with the server was lost, please wait for a new connection..')
+
+    except Exception as e:
+        print("receive_tcp_messages:", type(e))
 
 
 def send_tcp_messages(client_socket):
     try:
         message = input()
         client_socket.sendall(message.encode())
+
+    except ConnectionResetError as e:
+        raise ConnectionResetError
+
     except Exception as e:
-        print("send_tcp_messages:", e)
+        raise Exception
 
 
 def main():
@@ -86,23 +81,19 @@ def main():
     # Send player name to the server
     fake = Faker()
     player_name = fake.name()
-    print(player_name)
+    print(f'Your name is {player_name}')
     server_udp_port = 13117
-    stop_event_client = threading.Event()
-    synchronized_list = SynchronizedDataStructure()
-    while True:
-        try:
+    try:
+        while True:
             # Create a UDP socket
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             udp_socket.bind(("", server_udp_port))
-
             print(f"{Blue}Client started, listening for offer requests...")
-
             # Listen for offer messages
             magic_cookie, message_type, server_name, server_ip_address, server_tcp_port, message = receive_udp_offer(udp_socket)
             print(message)
-
+            udp_socket.close()
             # Connect to the server via TCP
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
@@ -115,15 +106,12 @@ def main():
             receive_thread = threading.Thread(target=receive_tcp_messages(client_socket))
             receive_thread.start()
             receive_thread.join()
-            udp_socket.close()
+            # udp_socket.close()
             client_socket.close()
-        except Exception as e:
-            print("main:", e)
-            sys.exit()
+    except Exception as e:
+        print("main:", e)
+        sys.exit()
 
 
 if __name__ == "__main__":
     main()
-
-
-#
