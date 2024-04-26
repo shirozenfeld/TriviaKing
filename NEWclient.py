@@ -5,7 +5,6 @@ import sys
 import threading
 from faker import Faker
 import re
-from queue import Queue
 
 
 Bold = "\033[1m"
