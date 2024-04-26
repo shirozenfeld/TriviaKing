@@ -139,7 +139,7 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
         try:
             # Accept client connections
             while not stop_event.is_set():
-                if len(client_sockets) >= 1:
+                if len(client_sockets.items()) >= 1:
                     server_socket.settimeout(10)  # Set timeout for accept() to 10 seconds
                     try:
                         client_socket, addr = server_socket.accept()
@@ -217,6 +217,7 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
         dropouts.put(player_name)
 
     except Exception as e:
+        print(type(e))
         print('adslfjaskdf')
 
 
@@ -254,7 +255,7 @@ def trivia_game(client_sockets):
                 thread = threading.Thread(target=handle_client, args=(list(client_sockets.keys())[0], list(client_sockets.values())[0], message, False, None, None))
                 thread.start()
                 thread.join()
-                return
+                return ""
 
             winner_flag = False
             while not answers.empty():
@@ -338,11 +339,11 @@ def main():
             server_tcp_listening_port = get_free_port()
             client_sockets = run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,
                                                          server_udp_broadcast_port)
-            if len(client_sockets) > 1:
+            if len(client_sockets.items()) > 1:
                 trivia_game(client_sockets)
                 print(f"{Yellow}Game over, sending out offer requests...")
 
-            elif len(client_sockets) == 1:
+            elif len(client_sockets.items()) == 1:
                 message = f"{Red}No other players have joined, please try again."
                 for player_name, socket in client_sockets.items():
                     handle_client(player_name, socket, message, False, None,None)
