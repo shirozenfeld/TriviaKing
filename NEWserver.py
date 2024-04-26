@@ -163,19 +163,11 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                         break
 
         except Exception as e:
-            print('22')
-            raise Exception
-
-        except Exception as e:
             print(f"run_udp_and_tcp_connections inside exception: {e}")
             stop_event.set()
             for client_socket in client_sockets.values():
                 client_socket.close()
             server_socket.close()
-
-    except Exception as e:
-        print('101')
-        raise Exception
 
     except Exception as e:
         print(f"Error trying to set a TCP server: {e}")
