@@ -193,6 +193,7 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                 client_socket.sendall(message.encode())
             except Exception as e:
                 print('1')
+                print(type(e))
                 raise Exception
             except Exception as e:
                 print(e)
@@ -249,7 +250,7 @@ def trivia_game(client_sockets):
             while not dropouts.empty():
                 quitting_player = dropouts.get()
                 del client_sockets[quitting_player]
-            if len(client_sockets) == 1:
+            if len(client_sockets.items()) == 1:
                 message = f"{Red}You have been abandoned by your friends, please try connecting to a new game with new friends"
                 print(message)
                 thread = threading.Thread(target=handle_client, args=(list(client_sockets.keys())[0], list(client_sockets.values())[0], message, False, None, None))
