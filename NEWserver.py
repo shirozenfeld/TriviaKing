@@ -257,7 +257,6 @@ def trivia_game(client_sockets):
                 thread.start()
                 thread.join()
                 return ""
-
             winner_flag = False
             while not answers.empty():
                 # fold out the player-answer tuples by FIFO order
