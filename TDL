@@ -1,0 +1,32 @@
+#todo:
+- Statistics -think of criteria: best team ever to play on this server, most commonly typed character, anything else you can think of…)
+
+- check with 2 computers:
+* regular run
+* wifi disconnects in server
+* wifi disconnects in client
+* Try running through cmd
+* one computer opens the server and the other computer opens two clients
+
+
+- Running 2 servers - check what needs to happen when clients are connected to a server and then another server runs, do they need to connect to it?
+- try running 2 servers each with 2 different clients to play 2 games simultaniasly
+- Do not use busy-waiting (e.g. while-continue loops). As a general guideline, if your
+program consumes more than 1% CPU, you’re probably doing something wrong.
+- Think about what you should do if things fail - messages are corrupted, the server does
+not respond, the clients hang up, etc. Your error handling code will be tested.
+- packet loss
+- documentation
+- Return values of functions are checked
+- make sure the exception messages are proper
+
+- a game with 2 clients and both of them quit in the middle - see what to do
+- disconnect a client in the middle and don't let him in afterwards
+- if the game started, don't let new players join
+
+#todo: Done
+- Edge case 1: assure that if the server disconnects in the middle of the game
+- Edge case 2: check invalid input
+- disconnect a server and notify everyone ("try again")
+- if a player leaves, delete its socket and its name from the dictionary
+- a game with 2 clients, a round is finished and one client quits, see that the client that left will get the message no other players have joined.

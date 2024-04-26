@@ -99,7 +99,7 @@ def main():
             try:
                 client_socket.connect((server_ip_address, server_tcp_port))
             except Exception as e:
-                print(e)
+                print(f'main exception inside: {e}')
             print("Connected to the server.")
             client_socket.sendall(player_name.encode() + b'\n')
             # Start threads for sending and receiving messages
