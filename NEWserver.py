@@ -227,6 +227,7 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
 
 def trivia_game(client_sockets):
     try:
+        winner_flag = False
         dropouts = Queue()
         answers = Queue()
         question, is_true = pick_a_question()
@@ -295,7 +296,8 @@ def trivia_game(client_sockets):
                     for thread in clients_threads:
                         thread.join()
                     break
-            # If nobody answers correctly, another round begins
+            # If nobody answers correctly, or answered at all, another round begins
+            print('4')
             if not winner_flag:
                 print('5')
                 round += 1

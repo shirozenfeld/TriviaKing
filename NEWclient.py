@@ -11,6 +11,8 @@ import threading
 import select
 import traceback
 
+from inputimeout import inputimeout, TimeoutOccurred
+
 
 Bold = "\033[1m"
 Red = "\033[31;1m"
@@ -61,12 +63,11 @@ def receive_tcp_messages(client_socket):
                 break
 
     except ConnectionResetError as e:
-        print(f'{end}{Red}Connection with the server was lost, please wait for a new connection..')
+        print(f'{Red}Connection with the server was lost, please wait for a new connection..')
 
     except Exception as e:
         print("receive_tcp_messages:", type(e))
         traceback.print_exc()
-
 
 
 def send_tcp_messages(client_socket):
@@ -85,12 +86,6 @@ def send_tcp_messages(client_socket):
     # else:
     #     # Timed out waiting for input
     #     print("Timed out waiting for input")
-
-    except ConnectionResetError as e:
-        raise ConnectionResetError
-
-    except Exception as e:
-        raise Exception
 
 
 def main():
