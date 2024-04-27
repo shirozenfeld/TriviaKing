@@ -254,7 +254,7 @@ def trivia_game(client_sockets):
             while not dropouts.empty():
                 quitting_player = dropouts.get()
                 del client_sockets[quitting_player]
-            print('1')
+
             if len(client_sockets) == 1:
                 message = f"{Red}You have been abandoned by your friends, please try connecting to a new game with new friends"
                 print(message)
@@ -263,10 +263,10 @@ def trivia_game(client_sockets):
                 thread.join()
                 return
             j=0
-            print('2')
+
             while not answers.empty():
                 j+=1
-                print('3')
+
                 # fold out the player-answer tuples by FIFO order
                 player_name, answer = answers.get()
                 if (is_true == True and (answer == 'Y' or answer == 'T' or answer == "1")) or (
@@ -298,19 +298,20 @@ def trivia_game(client_sockets):
                         thread.join()
                     break
             # If nobody answers correctly, or answered at all, another round begins
-            print('4')
+
             if not winner_flag:
                 message=""
                 if j==0: #nobody answered at all
-                    message += "Nobody answered within 10 seconds. Another round begins."
-                print('5')
+                    message += f"{Red}Nobody answered within 10 seconds. Another round begins."
+
                 round += 1
                 question, is_true = pick_a_question()
                 message += f"\nRound {round}, played by "
                 for player_name in client_sockets.keys():
                     message += f"{player_name}, "
+                message=message[:-1]
                 message += ":\nTrue or false: " + question
-                print('6')
+
             # there is a winner, end game
             else:
                 for client_socket in client_sockets.values():

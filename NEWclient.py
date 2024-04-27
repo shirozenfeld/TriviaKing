@@ -78,42 +78,10 @@ def send_tcp_messages(client_socket):
         # Block at most one second
         event = events.get(10)
         if event is None:
-            print('You did not press a key within one second')
+            print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
         else:
             input = sys.stdin.readline().strip()
             client_socket.sendall(input.encode())
-
-    # start=time.time()
-    # while (time.time()-start<=10):
-    #     if keyboard.on_press()
-    #         print("here")
-    #         input = sys.stdin.readline().strip()
-    #         if input:
-    #             client_socket.sendall(input.encode())
-    #             return
-    #
-    # print("Timed out waiting for input")
-    #
-    # # Set timeout to 10 seconds
-    # timeout = 10
-    # ready, _, _ = select.select([client_socket], [], [], timeout)
-    # if ready:  # If client_socket is ready to be read
-    #     ans = sys.stdin.readline().strip()
-    #     client_socket.sendall(ans.encode())
-    # else:
-    #     # Timed out waiting for input
-    #     print("Timed out waiting for input")
-
-# def send_tcp_messages(client_socket):
-#     startTime = time.time()
-#     while True:
-#         if msvcrt.kbhit():
-#             ans = msvcrt.getch().decode()
-#             client_socket.sendall(ans.encode())
-#             break
-#         if time.time() - startTime > 10:
-#             break
-
 
 def main():
     udp_socket = None
