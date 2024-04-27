@@ -139,7 +139,7 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
         try:
             # Accept client connections
             while not stop_event.is_set():
-                if len(client_sockets.items()) >= 1:
+                if len(client_sockets) >= 1:
                     server_socket.settimeout(10)  # Set timeout for accept() to 10 seconds
                     try:
                         client_socket, addr = server_socket.accept()
@@ -163,11 +163,19 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                         break
 
         except Exception as e:
+            print('22')
+            raise Exception
+
+        except Exception as e:
             print(f"run_udp_and_tcp_connections inside exception: {e}")
             stop_event.set()
             for client_socket in client_sockets.values():
                 client_socket.close()
             server_socket.close()
+
+    except Exception as e:
+        print('101')
+        raise Exception
 
     except Exception as e:
         print(f"Error trying to set a TCP server: {e}")
@@ -184,18 +192,15 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
             try:
                 client_socket.sendall(message.encode())
             except Exception as e:
-                print('1')
-                print(type(e))
+                print('1', e)
                 raise Exception
-            except Exception as e:
-                print(e)
         else:
             valid_answers = ["Y", "T", "1", "N", "F", "0"]
             client_socket.sendall(message.encode())
             while True:
                 # Receive data from the client
                 data = client_socket.recv(1024)
-                if data == 0:  #connection was closed
+                if data == 0:  # connection was closed
                     dropouts.put(player_name)
                     break
                 if not data or len(data) > 1 or data.decode() not in valid_answers:
@@ -209,8 +214,14 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
         print("also here")
         dropouts.put(player_name)
 
+    except ConnectionAbortedError as e:
+        message = "No input received within 10 seconds\n"
+        print(message)
+        return
+
+
     except Exception as e:
-        print(type(e))
+        print(e, type(e))
         print('adslfjaskdf')
 
 
@@ -242,15 +253,18 @@ def trivia_game(client_sockets):
             while not dropouts.empty():
                 quitting_player = dropouts.get()
                 del client_sockets[quitting_player]
-            if len(client_sockets.items()) == 1:
+            print('1')
+            if len(client_sockets) == 1:
                 message = f"{Red}You have been abandoned by your friends, please try connecting to a new game with new friends"
                 print(message)
                 thread = threading.Thread(target=handle_client, args=(list(client_sockets.keys())[0], list(client_sockets.values())[0], message, False, None, None))
                 thread.start()
                 thread.join()
-                return ""
-            winner_flag = False
+                return
+
+            print('2')
             while not answers.empty():
+                print('3')
                 # fold out the player-answer tuples by FIFO order
                 player_name, answer = answers.get()
                 if (is_true == True and (answer == 'Y' or answer == 'T' or answer == "1")) or (
@@ -274,6 +288,7 @@ def trivia_game(client_sockets):
                     message += read_stats()
                     # Send message 2
                     for player_name, socket in client_sockets.items():
+                        print(client_sockets)
                         thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None, None))
                         thread.start()
                         clients_threads.append(thread)
@@ -282,17 +297,20 @@ def trivia_game(client_sockets):
                     break
             # If nobody answers correctly, another round begins
             if not winner_flag:
+                print('5')
                 round += 1
                 question, is_true = pick_a_question()
                 message = f"Round {round}, played by "
                 for player_name in client_sockets.keys():
                     message += f"{player_name}, "
                 message += ":\nTrue or false: " + question
-            break
-        # there is a winner, end game
-        for client_socket in client_sockets.values():
-            client_socket.close()
-        return player_name
+                print('6')
+            # there is a winner, end game
+            else:
+                for client_socket in client_sockets.values():
+                    client_socket.close()
+                print('7')
+                return player_name
     except Exception as e:
         print('12309')
         print(e)
@@ -331,11 +349,11 @@ def main():
             server_tcp_listening_port = get_free_port()
             client_sockets = run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port,
                                                          server_udp_broadcast_port)
-            if len(client_sockets.items()) > 1:
+            if len(client_sockets) > 1:
                 trivia_game(client_sockets)
                 print(f"{Yellow}Game over, sending out offer requests...")
 
-            elif len(client_sockets.items()) == 1:
+            elif len(client_sockets) == 1:
                 message = f"{Red}No other players have joined, please try again."
                 for player_name, socket in client_sockets.items():
                     handle_client(player_name, socket, message, False, None,None)

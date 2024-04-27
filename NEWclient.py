@@ -1,10 +1,15 @@
-#CLIENT
+# CLIENT
 import socket
 import struct
 import sys
 import threading
 from faker import Faker
 import re
+from queue import Queue
+import time
+import threading
+import select
+import traceback
 
 
 Bold = "\033[1m"
@@ -60,12 +65,26 @@ def receive_tcp_messages(client_socket):
 
     except Exception as e:
         print("receive_tcp_messages:", type(e))
+        traceback.print_exc()
+
 
 
 def send_tcp_messages(client_socket):
     try:
-        message = input()
-        client_socket.sendall(message.encode())
+        var = inputimeout(prompt='>>', timeout=10)
+        client_socket.sendall(var.encode())
+    except TimeoutOccurred:
+        print("Timed out waiting for input")
+
+    # # Set timeout to 10 seconds
+    # timeout = 10
+    # ready, _, _ = select.select([client_socket], [], [], timeout)
+    # if ready:  # If client_socket is ready to be read
+    #     ans = sys.stdin.readline().strip()
+    #     client_socket.sendall(ans.encode())
+    # else:
+    #     # Timed out waiting for input
+    #     print("Timed out waiting for input")
 
     except ConnectionResetError as e:
         raise ConnectionResetError
@@ -90,7 +109,8 @@ def main():
             udp_socket.bind(("", server_udp_port))
             print(f"{Blue}Client started, listening for offer requests...")
             # Listen for offer messages
-            magic_cookie, message_type, server_name, server_ip_address, server_tcp_port, message = receive_udp_offer(udp_socket)
+            magic_cookie, message_type, server_name, server_ip_address, server_tcp_port, message = receive_udp_offer(
+                udp_socket)
             print(message)
             udp_socket.close()
             # Connect to the server via TCP
@@ -98,7 +118,7 @@ def main():
             try:
                 client_socket.connect((server_ip_address, server_tcp_port))
             except Exception as e:
-                print(f'main exception inside: {e}')
+                print(e)
             print("Connected to the server.")
             client_socket.sendall(player_name.encode() + b'\n')
             # Start threads for sending and receiving messages
