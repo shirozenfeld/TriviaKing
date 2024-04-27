@@ -262,9 +262,10 @@ def trivia_game(client_sockets):
                 thread.start()
                 thread.join()
                 return
-
+            j=0
             print('2')
             while not answers.empty():
+                j+=1
                 print('3')
                 # fold out the player-answer tuples by FIFO order
                 player_name, answer = answers.get()
@@ -299,10 +300,13 @@ def trivia_game(client_sockets):
             # If nobody answers correctly, or answered at all, another round begins
             print('4')
             if not winner_flag:
+                message=""
+                if j==0: #nobody answered at all
+                    message += "Nobody answered within 10 seconds. Another round begins."
                 print('5')
                 round += 1
                 question, is_true = pick_a_question()
-                message = f"Round {round}, played by "
+                message += f"\nRound {round}, played by "
                 for player_name in client_sockets.keys():
                     message += f"{player_name}, "
                 message += ":\nTrue or false: " + question

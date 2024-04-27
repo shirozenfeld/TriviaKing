@@ -1,4 +1,5 @@
 # CLIENT
+import msvcrt
 import socket
 import struct
 import sys
@@ -10,9 +11,10 @@ import time
 import threading
 import select
 import traceback
+import keyboard
 
 from inputimeout import inputimeout, TimeoutOccurred
-
+from keyboard import KeyboardEvent
 
 Bold = "\033[1m"
 Red = "\033[31;1m"
@@ -70,13 +72,28 @@ def receive_tcp_messages(client_socket):
         traceback.print_exc()
 
 
+from pynput import keyboard
 def send_tcp_messages(client_socket):
-    try:
-        var = inputimeout(prompt='>>', timeout=10)
-        client_socket.sendall(var.encode())
-    except TimeoutOccurred:
-        print("Timed out waiting for input")
+    with keyboard.Events() as events:
+        # Block at most one second
+        event = events.get(10)
+        if event is None:
+            print('You did not press a key within one second')
+        else:
+            input = sys.stdin.readline().strip()
+            client_socket.sendall(input.encode())
 
+    # start=time.time()
+    # while (time.time()-start<=10):
+    #     if keyboard.on_press()
+    #         print("here")
+    #         input = sys.stdin.readline().strip()
+    #         if input:
+    #             client_socket.sendall(input.encode())
+    #             return
+    #
+    # print("Timed out waiting for input")
+    #
     # # Set timeout to 10 seconds
     # timeout = 10
     # ready, _, _ = select.select([client_socket], [], [], timeout)
@@ -86,6 +103,16 @@ def send_tcp_messages(client_socket):
     # else:
     #     # Timed out waiting for input
     #     print("Timed out waiting for input")
+
+# def send_tcp_messages(client_socket):
+#     startTime = time.time()
+#     while True:
+#         if msvcrt.kbhit():
+#             ans = msvcrt.getch().decode()
+#             client_socket.sendall(ans.encode())
+#             break
+#         if time.time() - startTime > 10:
+#             break
 
 
 def main():
