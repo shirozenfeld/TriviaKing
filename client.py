@@ -78,7 +78,6 @@ def receive_udp_offer(udp_socket):
             break
 
 
-
 def receive_tcp_messages(client_socket):
     """
        Receive messages from the server over a TCP connection.
