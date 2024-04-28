@@ -96,9 +96,12 @@ def send_tcp_messages(client_socket):
         # Block at most one second
         event = events.get(10)
         if event is None:
-            print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
             ans = "e"
-            client_socket.sendall(ans.encode())
+            try:
+                client_socket.sendall(ans.encode())
+            except ConnectionResetError as e:
+                return
+            print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
             return
         else:
             input = sys.stdin.readline().strip()
