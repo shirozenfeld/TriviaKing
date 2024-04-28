@@ -1,7 +1,4 @@
-import queue
-import socket
 import struct
-import subprocess
 import time
 import threading
 import random
@@ -244,6 +241,8 @@ def trivia_game(client_sockets):
             clients_threads = []
             # send message and wait for answers to the questions
             print(message)
+            if len(client_sockets) == 0:
+                break
             for player_name, socket in client_sockets.items():
                 thread = threading.Thread(target=handle_client, args=(player_name, socket, message, True, answers, dropouts))
                 thread.start()
@@ -303,7 +302,7 @@ def trivia_game(client_sockets):
                         j = 0
                         break
             # If nobody answers correctly, or answered at all, another round begins
-            if not winner_flag:
+            if not winner_flag and len(client_sockets) != 0:
                 message = ""
                 if j == 0: #nobody answered at all
                     message += f"{Red}Nobody answered within 10 seconds. Another round begins."

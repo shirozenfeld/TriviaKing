@@ -1,20 +1,14 @@
 # CLIENT
-import msvcrt
 import socket
 import struct
 import sys
-import threading
 from faker import Faker
 import re
-from queue import Queue
-import time
 import threading
-import select
 import traceback
 import keyboard
+from pynput import keyboard
 
-from inputimeout import inputimeout, TimeoutOccurred
-from keyboard import KeyboardEvent
 
 Bold = "\033[1m"
 Red = "\033[31;1m"
@@ -88,7 +82,6 @@ def receive_tcp_messages(client_socket):
 #             print("hereeeeee00000000")
 #             client_socket.sendall(input.encode())
 #             print(f'input: {input}')
-from pynput import keyboard
 
 
 def send_tcp_messages(client_socket):
