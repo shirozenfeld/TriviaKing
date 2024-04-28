@@ -1,4 +1,5 @@
 # CLIENT
+import msvcrt
 import socket
 import struct
 import sys
@@ -10,9 +11,10 @@ import time
 import threading
 import select
 import traceback
+import keyboard
 
 from inputimeout import inputimeout, TimeoutOccurred
-
+from keyboard import KeyboardEvent
 
 Bold = "\033[1m"
 Red = "\033[31;1m"
@@ -70,22 +72,37 @@ def receive_tcp_messages(client_socket):
         traceback.print_exc()
 
 
-def send_tcp_messages(client_socket):
-    try:
-        var = inputimeout(prompt='>>', timeout=10)
-        client_socket.sendall(var.encode())
-    except TimeoutOccurred:
-        print("Timed out waiting for input")
+#
+# def send_tcp_messages(client_socket):
+#     with keyboard.Events() as events:
+#         # Block at most one second
+#         event = events.get(10)
+#         print(event)
+#         if event is None:
+#             print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
+#             return
+#         else:
+#             print('hereeeee')
+#             # Check if there's data ready to be read on sys.stdin
+#             input = sys.stdin.readline().strip()
+#             print("hereeeeee00000000")
+#             client_socket.sendall(input.encode())
+#             print(f'input: {input}')
+from pynput import keyboard
 
-    # # Set timeout to 10 seconds
-    # timeout = 10
-    # ready, _, _ = select.select([client_socket], [], [], timeout)
-    # if ready:  # If client_socket is ready to be read
-    #     ans = sys.stdin.readline().strip()
-    #     client_socket.sendall(ans.encode())
-    # else:
-    #     # Timed out waiting for input
-    #     print("Timed out waiting for input")
+
+def send_tcp_messages(client_socket):
+    with keyboard.Events() as events:
+        # Block at most one second
+        event = events.get(10)
+        if event is None:
+            print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
+            ans = "e"
+            client_socket.sendall(ans.encode())
+            return
+        else:
+            input = sys.stdin.readline().strip()
+            client_socket.sendall(input.encode())
 
 
 def main():

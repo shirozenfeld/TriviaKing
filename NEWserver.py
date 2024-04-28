@@ -188,6 +188,7 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
 # Function to handle communication with each client
 def handle_client(player_name, client_socket, message, should_wait_for_answer, answers, dropouts):
     try:
+
         if not should_wait_for_answer:
             try:
                 client_socket.sendall(message.encode())
@@ -195,30 +196,29 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                 print('1', e)
                 raise Exception
         else:
-            valid_answers = ["Y", "T", "1", "N", "F", "0"]
+            valid_answers = ["Y", "T", "1", "N", "F", "0", "e"]
             client_socket.sendall(message.encode())
             while True:
                 # Receive data from the client
                 data = client_socket.recv(1024)
                 if data == 0:  # connection was closed
+                    print("over here")
                     dropouts.put(player_name)
-                    break
-                if not data or len(data) > 1 or data.decode() not in valid_answers:
+                    return
+                if not data or data.decode() not in valid_answers:
                     error_message = "Invalid input, please answer again, Y/T/1 for 'True' or N/F/0 for 'False'"
                     client_socket.sendall(error_message.encode())  # Encode error message before sending
                 else:
                     answers.put((player_name, data.decode()))
                     break
-
     except ConnectionResetError as e:
         print("also here")
         dropouts.put(player_name)
 
     except ConnectionAbortedError as e:
-        message = "No input received within 10 seconds\n"
+        message = f"{Red}No input received within 10 seconds\n"
         print(message)
         return
-
 
     except Exception as e:
         print(e, type(e))
@@ -227,19 +227,20 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
 
 def trivia_game(client_sockets):
     try:
-        winner_flag = False
-        dropouts = Queue()
-        answers = Queue()
         question, is_true = pick_a_question()
         # create welcome message & question
-        message = f"{Green}Welcome to the SlothsWorld server, where we are answering trivia questions about Sloths."
+        message = f"{Yellow}Welcome to the SlothsWorld server, where we are answering trivia questions about Sloths."
         i = 1
         round = 1
         for player_name in client_sockets.keys():
-            message += f"\n {Green}Player {i}: {player_name}"
+            message += f"\n {Yellow}Player {i}: {player_name}"
             i += 1
-        message += f"{Green}\n==\nTrue or false: {question}"
+        message += f"{Yellow}\n==\nTrue or false: {question}"
         while True:
+            no_answer = 0
+            answers = Queue()
+            dropouts = Queue()
+            winner_flag = False
             clients_threads = []
             # send messages and wait for answers to the questions
             print(message)
@@ -248,13 +249,13 @@ def trivia_game(client_sockets):
                 thread.start()
                 clients_threads.append(thread)
             for thread in clients_threads:
-                thread.join(timeout=10)
+                thread.join()
             # input validation is done in handle_client function
             clients_threads.clear()
             while not dropouts.empty():
                 quitting_player = dropouts.get()
                 del client_sockets[quitting_player]
-            print('1')
+
             if len(client_sockets) == 1:
                 message = f"{Red}You have been abandoned by your friends, please try connecting to a new game with new friends"
                 print(message)
@@ -262,18 +263,18 @@ def trivia_game(client_sockets):
                 thread.start()
                 thread.join()
                 return
-
-            print('2')
+            j = 0
             while not answers.empty():
-                print('3')
+                j += 1
                 # fold out the player-answer tuples by FIFO order
                 player_name, answer = answers.get()
+                print(answer)
                 if (is_true == True and (answer == 'Y' or answer == 'T' or answer == "1")) or (
                         is_true == False and (answer == 'N' or answer == 'F' or answer == "0")):
                     # There is a winner for this round!
                     winner_flag = True
                     winner_name = player_name
-                    message = f"{Yellow}{winner_name} is correct! The answer is {is_true}. {winner_name} wins!"
+                    message = f"{Green}{winner_name} is correct! The answer is {is_true}. {winner_name} wins!"
                     # Send message 1
                     print(message)
                     for player_name, socket in client_sockets.items():
@@ -289,24 +290,33 @@ def trivia_game(client_sockets):
                     message += read_stats()
                     # Send message 2
                     for player_name, socket in client_sockets.items():
-                        print(client_sockets)
                         thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None, None))
                         thread.start()
                         clients_threads.append(thread)
                     for thread in clients_threads:
                         thread.join()
                     break
+                if answer == "e":
+                    no_answer += 1
+                    if no_answer == len(client_sockets):
+                        winner_flag = False
+                        j = 0
+                        break
             # If nobody answers correctly, or answered at all, another round begins
-            print('4')
             if not winner_flag:
-                print('5')
+                message = ""
+                if j == 0: #nobody answered at all
+                    message += f"{Red}Nobody answered within 10 seconds. Another round begins."
+                else:
+                    message += f"{Red}Non of the players answered correctly, try again."
                 round += 1
                 question, is_true = pick_a_question()
-                message = f"Round {round}, played by "
+                message += f"\n{Yellow}Round {round}, played by "
                 for player_name in client_sockets.keys():
-                    message += f"{player_name}, "
-                message += ":\nTrue or false: " + question
-                print('6')
+                    message += f"{Yellow}{player_name}, "
+                message=message[:-1]
+                message += f"{Yellow}:\nTrue or false: " + question
+
             # there is a winner, end game
             else:
                 for client_socket in client_sockets.values():
@@ -358,7 +368,7 @@ def main():
             elif len(client_sockets) == 1:
                 message = f"{Red}No other players have joined, please try again."
                 for player_name, socket in client_sockets.items():
-                    handle_client(player_name, socket, message, False, None,None)
+                    handle_client(player_name, socket, message, False, None, None)
                     socket.close()
 
     except Exception as e:
