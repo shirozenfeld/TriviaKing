@@ -30,3 +30,7 @@ question that was asked:Sloths have a large appetite.
 number of players:2
 T
 F
+question that was asked:Sloths are fast runners.
+number of players:2
+T
+F

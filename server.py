@@ -13,6 +13,29 @@ Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
 
+"""
+Server Script for a Multiplayer Trivia Game
+
+This script implements the server side functionality for a multiplayer trivia game. 
+It allows clients to connect, receive UDP broadcast offers, join the game, answer 
+trivia questions, and receive game updates.
+
+The server script performs the following tasks:
+1. Sends UDP broadcast messages to notify clients of the available game server.
+2. Listens for client connections via TCP after sending broadcast messages.
+3. Accepts client connections.
+4. Sends trivia questions to connected clients and awaits their answers.
+5. Validates and records player answers, determines winners, and updates game state.
+6. Manages client connections, handles disconnections, and cleans up resources.
+7. Provides statistics on game winners and maintains a winners list.
+
+The script utilizes threading to concurrently handle UDP broadcasting, TCP connections, 
+and client communication, ensuring smooth gameplay and responsiveness.
+
+Author: Shir Mordechai Rozenfeld & Netta Meiri
+"""
+
+
 
 def pick_a_question():
     try:
