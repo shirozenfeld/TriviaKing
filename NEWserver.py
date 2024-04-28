@@ -184,7 +184,7 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                 client_socket.close()
         server_socket.close()
 
-
+exit_flag=threading.Event()
 # Function to handle communication with each client
 def handle_client(player_name, client_socket, message, should_wait_for_answer, answers, dropouts):
     try:
@@ -242,7 +242,7 @@ def trivia_game(client_sockets):
             dropouts = Queue()
             winner_flag = False
             clients_threads = []
-            # send messages and wait for answers to the questions
+            # send message and wait for answers to the questions
             print(message)
             for player_name, socket in client_sockets.items():
                 thread = threading.Thread(target=handle_client, args=(player_name, socket, message, True, answers, dropouts))
