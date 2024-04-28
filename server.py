@@ -190,8 +190,7 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
             try:
                 client_socket.sendall(message.encode())
             except Exception as e:
-                print('1', e)
-                raise Exception
+                pass
         else:
             valid_answers = ["Y", "T", "1", "N", "F", "0", "e"]
             client_socket.sendall(message.encode())
@@ -216,10 +215,6 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
         message = f"{Red}No input received within 10 seconds\n"
         print(message)
         return
-
-    except Exception as e:
-        print(e, type(e))
-        print('adslfjaskdf')
 
 
 def trivia_game(client_sockets):
@@ -287,6 +282,7 @@ def trivia_game(client_sockets):
                     message = f"{Yellow}Game over!\nContratulations to the winner: {winner_name}"
                     message += f"{Yellow}\n=======================================\n"
                     message += read_stats()
+                    print(message)
                     # Send message 2
                     for player_name, socket in client_sockets.items():
                         thread = threading.Thread(target=handle_client, args=(player_name, socket, message, False, None, None))
@@ -315,7 +311,7 @@ def trivia_game(client_sockets):
                     message += f"{Yellow}{player_name}, "
                 message=message[:-1]
                 message += f"{Yellow}:\nTrue or false: " + question
-
+                print(message)
             # there is a winner, end game
             else:
                 for client_socket in client_sockets.values():

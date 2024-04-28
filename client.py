@@ -66,24 +66,6 @@ def receive_tcp_messages(client_socket):
         traceback.print_exc()
 
 
-#
-# def send_tcp_messages(client_socket):
-#     with keyboard.Events() as events:
-#         # Block at most one second
-#         event = events.get(10)
-#         print(event)
-#         if event is None:
-#             print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
-#             return
-#         else:
-#             print('hereeeee')
-#             # Check if there's data ready to be read on sys.stdin
-#             input = sys.stdin.readline().strip()
-#             print("hereeeeee00000000")
-#             client_socket.sendall(input.encode())
-#             print(f'input: {input}')
-
-
 def send_tcp_messages(client_socket):
     with keyboard.Events() as events:
         # Block at most one second
@@ -102,8 +84,6 @@ def send_tcp_messages(client_socket):
 
 
 def main():
-    udp_socket = None
-    client_socket = None
     # Send player name to the server
     fake = Faker()
     player_name = fake.name()

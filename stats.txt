@@ -1,12 +1,32 @@
-Kurt Taylor
-Jay Freeman
-Nancy Roberts
-Charles Johnston
-Ronald Brown
-Scott Martinez
-Amanda Petersen
-Stacey Martin
-Stacey Martin
-Renee Alexander
-Jennifer Jones
-Amanda Richards
+question that was asked:Sloths communicate using loud vocalizations.
+number of players:2
+question that was asked:Sloths communicate using loud vocalizations.
+question that was asked:Sloths are mammals.
+number of players:2
+question that was asked:Sloths are found only in Africa.
+number of players:2
+question that was asked:Sloths have a strong grip and can hang upside down for hours.
+number of players:2
+T
+question that was asked:Sloths are active hunters.
+number of players:2
+1
+F
+question that was asked:Sloths are fast runners.
+number of players:2
+1
+F
+question that was asked:Sloths communicate using loud vocalizations.
+number of players:2
+0
+question that was asked:Sloths spend most of their time sleeping.
+number of players:2
+F
+T
+question that was asked:Sloths have a body temperature similar to humans.
+number of players:2
+1
+question that was asked:Sloths have a large appetite.
+number of players:2
+T
+F
