@@ -1,38 +1,3 @@
-Kurt Taylor
-Jay Freeman
-Nancy Roberts
-Charles Johnston
-Ronald Brown
-Scott Martinez
-Amanda Petersen
-Stacey Martin
-Stacey Martin
-question that was asked:Sloths only eat leaves.
+question that was asked:Albert Einstein was offered the presidency of Israel.
 number of players:2
-T
-question that was asked:Sloths communicate using loud vocalizations.
-number of players:3
-F
-question that was asked:Sloths only eat leaves.
-number of players:3
-T
-question that was asked:Sloths can live up to 40 years in the wild.
-number of players:3
-T
-question that was asked:Sloths only eat leaves.
-number of players:3
-T
-question that was asked:Sloths have good eyesight.
-number of players:3
-F
-question that was asked:Sloths are excellent swimmers.
-number of players:3
-0
-question that was asked:Sloths are active hunters.
-number of players:3
-T
-T
-F
-question that was asked:Sloths spend most of their time sleeping.
-number of players:3
 T

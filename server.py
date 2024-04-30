@@ -92,7 +92,7 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
     Returns: None
     """
     broadcast_ip = "255.255.255.255"
-    server_name = "SlothGod"
+    server_name = "TONGUE"
     # set UDP socket properties
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     # set socket options to allow broadcast

@@ -9,6 +9,7 @@ import traceback
 import keyboard
 from pynput import keyboard
 
+import game
 
 Bold = "\033[1m"
 Red = "\033[31;1m"
@@ -171,7 +172,8 @@ def main():
     # Pick a random player name
     fake = Faker()
     player_name = fake.name()
-    print(f'{Green}Your name is {player_name}')
+    game.print_welcome_message(player_name)
+
     server_udp_port = 13117
     try:
         while True:

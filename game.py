@@ -18,6 +18,20 @@ Yellow = "\033[33;1m"
 Blue = "\033[34;1m"
 end = "\033[0;1m"
 
+
+def print_welcome_message(player_name):
+    with open("einstein.txt", "r") as file:
+        for line in file:
+            line = line.rstrip()
+            print(line)
+    print(f"{Red}Welcome to the Einstein Trivia Game!")
+    print(f"{Blue}Welcome to the Einstein Trivia Game!")
+    print(f"{Yellow}Welcome to the Einstein Trivia Game!")
+    print(f"{Green}====================================")
+    print(f'{Green}Your name is {player_name}')
+    print(f"{Green}====================================")
+
+
 def pick_a_question():
     """
     Randomly selects a trivia question about sloths from a predefined list.
@@ -30,26 +44,27 @@ def pick_a_question():
     try:
         # List of trivia questions about sloths
         trivia_questions = [
-            {"question": "Sloths are mammals.", "is_true": True},
-            {"question": "Sloths spend most of their time sleeping.", "is_true": True},
-            {"question": "Sloths are fast runners.", "is_true": False},
-            {"question": "Sloths have a very slow metabolism.", "is_true": True},
-            {"question": "Sloths are excellent swimmers.", "is_true": False},
-            {"question": "Sloths only eat leaves.", "is_true": True},
-            {"question": "Sloths are closely related to monkeys.", "is_true": False},
-            {"question": "Sloths have a large appetite.", "is_true": False},
-            {"question": "Sloths are nocturnal animals.", "is_true": False},
-            {"question": "Sloths have a strong sense of smell.", "is_true": True},
-            {"question": "Sloths have long tongues.", "is_true": True},
-            {"question": "Sloths have good eyesight.", "is_true": False},
-            {"question": "Sloths have a body temperature similar to humans.", "is_true": True},
-            {"question": "Sloths are found only in Africa.", "is_true": False},
-            {"question": "Sloths have a natural predator in the wild.", "is_true": False},
-            {"question": "Sloths communicate using loud vocalizations.", "is_true": False},
-            {"question": "Sloths can live up to 40 years in the wild.", "is_true": True},
-            {"question": "Sloths have a strong grip and can hang upside down for hours.", "is_true": True},
-            {"question": "Sloths have multiple stomach chambers to digest their food.", "is_true": False},
-            {"question": "Sloths are active hunters.", "is_true": False}
+            {"question": "Albert Einstein was born in Germany.", "is_true": True},
+            {"question": "Einstein was awarded the Nobel Prize in Chemistry.", "is_true": False},
+            {"question": "Albert Einstein was a proficient musician.", "is_true": True},
+            {"question": "Einstein failed mathematics in school.", "is_true": False},
+            {"question": "Albert Einstein developed the theory of relativity.", "is_true": True},
+            {"question": "Einstein published his Special Theory of Relativity in 1905.", "is_true": True},
+            {"question": "Albert Einstein's famous equation is E=mc^2.", "is_true": True},
+            {"question": "Einstein worked on the Manhattan Project.", "is_true": False},
+            {"question": "Albert Einstein had a patent for a refrigerator.", "is_true": True},
+            {"question": "Einstein was a citizen of three countries during his lifetime.", "is_true": True},
+            {"question": "Albert Einstein was a professor at Princeton University.", "is_true": True},
+            {"question": "Einstein was known for his advocacy of civil rights.", "is_true": True},
+            {"question": "Albert Einstein's brain was stolen after his death.", "is_true": True},
+            {"question": "Einstein received the US Presidential Medal of Freedom.", "is_true": True},
+            {"question": "Albert Einstein had a significant role in the development of quantum mechanics.",
+             "is_true": True},
+            {"question": "Einstein believed in a deterministic universe.", "is_true": False},
+            {"question": "Albert Einstein was offered the presidency of Israel.", "is_true": True},
+            {"question": "Einstein had a famous debate with Niels Bohr about quantum mechanics.", "is_true": True},
+            {"question": "Albert Einstein's last words were in German.", "is_true": False},
+            {"question": "Einstein was a vegetarian.", "is_true": True}
         ]
         # Shuffle the list of trivia questions
         random.shuffle(trivia_questions)
