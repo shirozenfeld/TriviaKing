@@ -188,6 +188,7 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                 client_socket.close()
         server_socket.close()
 
+
 # Function to handle communication with each client
 def handle_client(player_name, client_socket, message, should_wait_for_answer, answers, dropouts):
     """
@@ -210,17 +211,19 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                 client_socket.sendall(message.encode())
             except Exception as e:
                 # Everybody left the game thus no socket is valid. Pass the exception and start a new game.
+                print("SHIR")
                 pass
         else:
             valid_answers = ["Y", "T", "1", "N", "F", "0", "e"]
             client_socket.sendall(message.encode())
             while True:
                 # Receive data from the client
-                data=client_socket.recv(1024)
-                if data == 0 or not data:  # connection was closed, remove the player
+                data = client_socket.recv(1024)
+                if data == 0:  # connection was closed, remove the player
+                    print("data==0")
                     dropouts.put(player_name)
                     return
-                if data.decode() not in valid_answers: # Invalid answer, ask the player to change it
+                if not data or data.decode() not in valid_answers: # Invalid answer, ask the player to change it
                     error_message = "Invalid input, please answer again, Y/T/1 for 'True' or N/F/0 for 'False'"
                     client_socket.sendall(error_message.encode())  # Encode error message before sending
                 else:
