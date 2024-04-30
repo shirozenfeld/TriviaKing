@@ -92,12 +92,13 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
     Returns: None
     """
     broadcast_ip = "255.255.255.255"
-    server_name = "Misty"
+    server_name = "SlothGod"
     # set UDP socket properties
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     # set socket options to allow broadcast
     udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    udp_socket.bind((server_ip_address, server_broadcast_port))
     # send broadcast message
     try:
         print(f"{Yellow}Server started, listening on IP address {server_ip_address}")
@@ -116,7 +117,7 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
             time.sleep(1)
 
     except Exception as e:
-        print("Failed sending UDP messages in the LAN via broadcast.")
+        print(f"{Red}Failed sending UDP messages in the LAN via broadcast. {e}")
         udp_socket.close()
 
 
@@ -174,14 +175,14 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                         break
 
         except Exception as e:
-            print("Failed accepting new clients.")
+            print(f"{Red}Failed accepting new clients.")
             stop_event.set()
             for client_socket in client_sockets.values():
                 client_socket.close()
             server_socket.close()
 
     except Exception as e:
-        print(f"Error trying to set a TCP server: {e}")
+        print(f"{Red}Error trying to set a TCP server: {e}")
         if len(client_sockets.keys()) > 0:
             for client_socket in client_sockets.values():
                 client_socket.close()
@@ -210,6 +211,7 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                 client_socket.sendall(message.encode())
             except Exception as e:
                 # Everybody left the game thus no socket is valid. Pass the exception and start a new game.
+                print("SHIR")
                 pass
         else:
             valid_answers = ["Y", "T", "1", "N", "F", "0", "e"]
@@ -218,6 +220,7 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                 # Receive data from the client
                 data = client_socket.recv(1024)
                 if data == 0:  # connection was closed, remove the player
+                    print("data==0")
                     dropouts.put(player_name)
                     return
                 if not data or data.decode() not in valid_answers: # Invalid answer, ask the player to change it
@@ -228,12 +231,12 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                     break
     except ConnectionResetError as e:
         # Player has quit the game
+        print("here")
         dropouts.put(player_name)
 
     except ConnectionAbortedError as e:
-        message = f"{Red}No input received within 10 seconds\n"
-        print(message)
-        return
+        print("here2")
+        dropouts.put(player_name)
 
 
 def main():
@@ -270,7 +273,7 @@ def main():
                     socket.close()
 
     except Exception as e:
-        print("Failed running the game")
+        print(f"{Red}Failed running the game")
 
 
 if __name__ == "__main__":
