@@ -56,7 +56,7 @@ def pick_a_question():
         return list(trivia_questions[0].values())[0], list(trivia_questions[0].values())[1]
 
     except Exception as e:
-        print("Failed shuffeling a question from the bank")
+        print(f"{Red}Failed shuffeling a question from the bank")
 
 
 def trivia_game(client_sockets):
@@ -168,14 +168,13 @@ def trivia_game(client_sockets):
                     message += f"{Yellow}{player_name}, "
                 message=message[:-1]
                 message += f"{Yellow}:\nTrue or false: " + question
-                print(message)
             # there is a winner, end game
             else:
                 for client_socket in client_sockets.values():
                     client_socket.close()
                 return player_name
     except Exception as e:
-        print(f"Failed running the trivia game: {e}")
+        print(f"{Red}Failed running the trivia game: {e}")
 
 
 def add_to_stats(number_of_players, winner_flag, question, typed_characters):
@@ -270,6 +269,6 @@ def read_stats():
         return message
 
     except FileNotFoundError:
-        print("The file 'stats.txt' does not exist.")
+        print(f"{Red}The file 'stats.txt' does not exist.")
     except Exception as e:
-        print(f"Failed reading statistics: {e}")
+        print(f"{Red}Failed reading statistics: {e}")

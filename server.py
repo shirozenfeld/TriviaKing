@@ -117,7 +117,7 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
             time.sleep(1)
 
     except Exception as e:
-        print("Failed sending UDP messages in the LAN via broadcast.")
+        print(f"{Red}Failed sending UDP messages in the LAN via broadcast.")
         udp_socket.close()
 
 
@@ -175,7 +175,7 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                         break
 
         except Exception as e:
-            print("Failed accepting new clients.")
+            print(f"{Red}Failed accepting new clients.")
             stop_event.set()
             for client_socket in client_sockets.values():
                 client_socket.close()
@@ -236,6 +236,9 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
         print(message)
         return
 
+    except KeyboardInterrupt as e:
+        print("Goodbye.")
+
 
 def main():
     """
@@ -271,7 +274,7 @@ def main():
                     socket.close()
 
     except Exception as e:
-        print("Failed running the game")
+        print(f"{Red}Failed running the game")
 
 
 if __name__ == "__main__":

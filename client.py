@@ -105,7 +105,7 @@ def receive_tcp_messages(client_socket):
                 send_tcp_messages(client_socket)
             # Check if the received data contains "game over" or "abandoned" to finish this round
             if "game over" in data.lower() or "abandoned" in data.lower():
-                print("Server disconnected, listening for offer requests...")
+                print(f"{Red}Server disconnected, listening for offer requests...")
                 break
 
     except ConnectionResetError as e:
@@ -129,22 +129,26 @@ def send_tcp_messages(client_socket):
           indicating that the client's response time has exceeded the limit.
         - If a `ConnectionResetError` occurs during the sending process, it returns without performing any action.
     """
-    with keyboard.Events() as events:
-        # Wait maximum 10 seconds for input
-        event = events.get(10)
-        # Client didn't enter input, send "e" (empty) to the server
-        if event is None:
-            ans = "e"
-            try:
-                client_socket.sendall(ans.encode())
-            except ConnectionResetError as e:
+    try:
+        with keyboard.Events() as events:
+            # Wait maximum 10 seconds for input
+            event = events.get(10)
+            # Client didn't enter input, send "e" (empty) to the server
+            if event is None:
+                ans = "e"
+                try:
+                    client_socket.sendall(ans.encode())
+                except ConnectionResetError as e:
+                    return
+                print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
                 return
-            print(f"{Red}Time's Up! You have exceeded the 10 seconds window for answering")
-            return
-        # Client entered input, send it to the server
-        else:
-            input = sys.stdin.readline().strip()
-            client_socket.sendall(input.encode())
+            # Client entered input, send it to the server
+            else:
+                input = sys.stdin.readline().strip()
+                client_socket.sendall(input.encode())
+
+    except ConnectionResetError as e:
+        print(f'{Red}Connection with the server was lost, please wait for a new connection..')
 
 
 def main():
@@ -167,7 +171,7 @@ def main():
     # Pick a random player name
     fake = Faker()
     player_name = fake.name()
-    print(f'Your name is {player_name}')
+    print(f'{Green}Your name is {player_name}')
     server_udp_port = 13117
     try:
         while True:
