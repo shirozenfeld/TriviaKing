@@ -112,7 +112,7 @@ def receive_tcp_messages(client_socket):
         print(f'{Red}Connection with the server was lost, please wait for a new connection..')
 
     except Exception as e:
-        # print("receive_tcp_messages:", type(e))
+        print("receive_tcp_messages:", type(e))
         pass
 
 
@@ -132,7 +132,6 @@ def send_tcp_messages(client_socket):
     with keyboard.Events() as events:
         # Wait maximum 10 seconds for input
         event = events.get(10)
-        client_socket.sendall(input.encode())
         # Client didn't enter input, send "e" (empty) to the server
         if event is None:
             ans = "e"
