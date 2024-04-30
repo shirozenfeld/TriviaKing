@@ -98,7 +98,7 @@ def send_udp_broadcast_message(server_ip_address, server_broadcast_port, server_
     # set socket options to allow broadcast
     udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    udp_socket.bind(server_ip_address, server_broadcast_port)
+    udp_socket.bind((server_ip_address, server_broadcast_port))
     # send broadcast message
     try:
         print(f"{Yellow}Server started, listening on IP address {server_ip_address}")
