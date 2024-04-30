@@ -131,11 +131,8 @@ def send_tcp_messages(client_socket):
     """
     with keyboard.Events() as events:
         # Wait maximum 10 seconds for input
-        try:
-            event = events.get(10)
-        except TimeoutError:
-            input = "timeout"
-            client_socket.sendall(input.encode())
+        event = events.get(10)
+        client_socket.sendall(input.encode())
         # Client didn't enter input, send "e" (empty) to the server
         if event is None:
             ans = "e"

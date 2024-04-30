@@ -28,3 +28,11 @@ F
 question that was asked:Sloths are excellent swimmers.
 number of players:3
 0
+question that was asked:Sloths are active hunters.
+number of players:3
+T
+T
+F
+question that was asked:Sloths spend most of their time sleeping.
+number of players:3
+T
