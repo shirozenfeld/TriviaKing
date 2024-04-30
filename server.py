@@ -223,6 +223,9 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                     print("data==0")
                     dropouts.put(player_name)
                     return
+                if data == "timeout":
+                    dropouts.put(player_name)
+                    return
                 if not data or data.decode() not in valid_answers: # Invalid answer, ask the player to change it
                     error_message = "Invalid input, please answer again, Y/T/1 for 'True' or N/F/0 for 'False'"
                     client_socket.sendall(error_message.encode())  # Encode error message before sending

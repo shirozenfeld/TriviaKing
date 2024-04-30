@@ -1,10 +1,7 @@
-import struct
-import time
+
 import threading
 import random
 from queue import Queue
-from faker import Faker
-import socket
 import server
 
 """
