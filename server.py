@@ -188,9 +188,6 @@ def run_udp_and_tcp_connections(server_ip_address, server_tcp_listening_port, se
                 client_socket.close()
         server_socket.close()
 
-def receive_tcp_message(data,client_socket):
-    data = client_socket.recv(1024)
-
 # Function to handle communication with each client
 def handle_client(player_name, client_socket, message, should_wait_for_answer, answers, dropouts):
     """
@@ -206,7 +203,6 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
 
     Returns: None
     """
-    data = Queue()
     try:
 
         if not should_wait_for_answer:
@@ -214,29 +210,22 @@ def handle_client(player_name, client_socket, message, should_wait_for_answer, a
                 client_socket.sendall(message.encode())
             except Exception as e:
                 # Everybody left the game thus no socket is valid. Pass the exception and start a new game.
-                print("SHIR")
                 pass
         else:
             valid_answers = ["Y", "T", "1", "N", "F", "0", "e"]
             client_socket.sendall(message.encode())
             while True:
                 # Receive data from the client
-                receive_thread=threading.Thread(target=receive_tcp_message,args=(data,client_socket))
-                receive_thread.join(timeout=10)
-                if data.empty():
+                data=client_socket.recv(1024)
+                if data == 0 or not data:  # connection was closed, remove the player
                     dropouts.put(player_name)
+                    return
+                if data.decode() not in valid_answers: # Invalid answer, ask the player to change it
+                    error_message = "Invalid input, please answer again, Y/T/1 for 'True' or N/F/0 for 'False'"
+                    client_socket.sendall(error_message.encode())  # Encode error message before sending
                 else:
-                    data_value=data.get()
-                    if data_value == 0 or not data_value:  # connection was closed, remove the player
-                        print("data==0")
-                        dropouts.put(player_name)
-                        return
-                    if data_value.decode() not in valid_answers: # Invalid answer, ask the player to change it
-                        error_message = "Invalid input, please answer again, Y/T/1 for 'True' or N/F/0 for 'False'"
-                        client_socket.sendall(error_message.encode())  # Encode error message before sending
-                    else:
-                        answers.put((player_name, data_value.decode()))
-                        break
+                    answers.put((player_name, data.decode()))
+                    break
     except ConnectionResetError as e:
         # Player has quit the game
         print("here")
