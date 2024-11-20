@@ -40,7 +40,7 @@ pip install -r requirements.txt
 Start the server to host a game: python server.py
 ### Running the Client
 Run the client to join the game: python client.py
-Run at least two client screens.
+Run at least two client screens.```
 
 ---
 
