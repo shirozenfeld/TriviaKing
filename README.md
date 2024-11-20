@@ -26,24 +26,6 @@ A **client-server multiplayer trivia game** that challenges players to answer tr
 - **stats.txt**: A log of game statistics, including questions asked and player responses.  
 
 ---
-
-## How to Run
-
-### Prerequisites
-- Python 3.7 or higher
-- Required libraries: `faker`, `keyboard`, `pynput`
-
-Install dependencies:
-```bash
-pip install -r requirements.txt
-### Running the Server
-Start the server to host a game: python server.py
-### Running the Client
-Run the client to join the game: python client.py
-Run at least two client screens.```
-
----
-
 ## Gameplay
 1. **Join the Game**: Players discover the server via UDP broadcast and connect using TCP.
 2. **Answer Questions**: The server sends trivia questions; players respond with "True" (T, Y, 1) or "False" (F, N, 0).
@@ -68,3 +50,22 @@ The game tracks:
 ## Authors
 - Shir Mordechai Rozenfeld
 - Netta Meiri
+
+---
+## How to Run
+
+### Prerequisites
+- Python 3.7 or higher
+- Required libraries: `faker`, `keyboard`, `pynput`
+
+Install dependencies:
+```bash
+pip install -r requirements.txt
+### Running the Server
+Start the server to host a game: python server.py
+### Running the Client
+Run the client to join the game: python client.py
+Run at least two client screens.```
+
+---
+
