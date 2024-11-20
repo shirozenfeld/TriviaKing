@@ -1,6 +1,6 @@
 # TriviaKing
 
-A **client-server multiplayer trivia game** that challenges players to answer true or false trivia questions as quickly as possible. Players join the game, receive trivia questions, and compete to answer correctly and win the game.
+A **client-server multiplayer trivia game** that challenges players to answer true or false trivia questions about **Albert Einstein** as quickly as possible. Players join the game, receive trivia questions, and compete to answer correctly and win the game.
 
 ---
 
